@@ -15,11 +15,13 @@ def dbSetup():
     connection = r.connect(host=RDB_HOST, port=RDB_PORT)
     try:
         r.db_create(resultsdb).run(connection)
+        
         r.db(resultsdb).table_create('results').run(connection)
         r.db(resultsdb).table_create('gpa').run(connection)
-        r.db(resultsdb).table_create('students').run(connection)
+        r.db(resultsdb).table_create('students', primary_key='regno').run(connection)
+
         r.db(resultsdb).table('gpa').index_create(
-            'semester',
+            'semester_',
             [
                 r.row["regno"],
                 r.row["semester"]
@@ -33,11 +35,7 @@ def dbSetup():
                 r.row["subject_name"]
             ]
             ).run(connection)
-        r.db(resultsdb).table('students').index_create(
-            'regno',
-            [
-                r.row["regno"]
-            ]).run(connection)
+        
         print ('Database setup completed. Now run the app without --setup: '
                '`python downloaddb.py`')
     except r.RqlRuntimeError, e:
@@ -131,8 +129,7 @@ def scrape_students(connection, replace):
     while id_sem:
         student = student_scraper(id_sem)
         if student is None:
-            print 'none student'
-            continue
+            print id_sem
         else:
             if replace:
                 inserted = r.db(resultsdb).table('students').insert(student, conflict="replace")
@@ -162,26 +159,29 @@ def scrape_results(connection, replace):
 
 
 def store_results(result, connection, replace=False):
+    ins_ = 0
     for subj in result['subjects']:
         if replace:
             inserted = r.db(resultsdb).table('results').insert(subj, conflict="replace")
         else:
             inserted = r.db(resultsdb).table('results').insert(subj, conflict="error")
-        inserted.run(connection)
+        ins = inserted.run(connection)
+        ins_ += ins['inserted']
+    print 'inserted: %d' % ins_
     if replace:
-        inserted = r.db(resultsdb).table('gpa').insert(subj, conflict="replace")
+        inserted = r.db(resultsdb).table('gpa').insert(result['grades'], conflict="replace")
     else:
-        inserted = r.db(resultsdb).table('gpa').insert(subj, conflict="error")
-    inserted.run(connection)
+        inserted = r.db(resultsdb).table('gpa').insert(result['grades'], conflict="error")
+    ins = inserted.run(connection)
 
-    print {id: inserted['generated_keys'][0]}
+    print ins['inserted']
 
 
 def foo_generator():
     cse = '12103'
     years = {
-        '11': 5,
-        '12': 6,
+        #'11': 5,
+        #'12': 6,
         '13': 9
     }
     rnos = 67
@@ -199,7 +199,7 @@ def foo_generator():
                 elif year == '12':
                     sem = 4
                 elif year == '13':
-                    sem = 3
+                    sem = 2
                 yield (id, sem)
 
 
