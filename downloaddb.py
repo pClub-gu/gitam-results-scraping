@@ -180,8 +180,8 @@ def store_results(result, connection, replace=False):
 def foo_generator():
     cse = '12103'
     years = {
-        #'11': 5,
-        #'12': 6,
+        '11': 5,
+        '12': 6,
         '13': 9
     }
     rnos = 67
