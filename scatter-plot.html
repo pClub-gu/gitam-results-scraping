@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<meta charset="UTF-8" >
+	<meta name= "author" content = "Akhil Pandey , Om Bhallamudi" >
+	<meta name= "description" content= "Data Analytics using Node Js
+	along with D3 Js, rendering the information to the user in the
+	form of graphs.We obtain the data from the website www.gusac.org
+	This project is analysing the results obtained and transforming 
+	it in the form of graphs">
+
+	<link rel = "shortcut icon" href = "favicon.ico">
+	<title>Data Analytics and Data Visualization</title>
+
+	<script src="js/d3.min.js"></script>
+</head>
+
+<body>
+	<script>
+	/* We have to observe primarily two things i.e what is a scatter-plot and what is its use ?
+	 > Scatter plot is a type of mathematical diagram used to display
+	 values for two variables for a set of data
+	 > Let us relate that to our Analysis of the Results.We have two 
+	 variables to represent data , one is the SGPA and other is the
+	 Grade associated with the SGPA. 
+	 > If we go deeper we can understand that this can be used to plot
+	 a graph for all the records(Students) in a Class with respect to 
+	 their Subjects.
+	 > We will take :
+	  -> On X Axis - Grades
+	  -> On Y Axis - SGPA
+	  -> Set Comparison - Subjects (5 on an average)
+	
+ Below we have declared the color and the type of quantative scale and color we want. 
+    */	
+
+	var set_xaxis = d3.svg.axis().scale(set_x).orient('bottom');
+	var set_yaxis = d3.svg.axis().scale(set_y).orient('left');
+	var set_color = d3.scale.category20();                    
+	var set_x = d3.scale.linear().range([0,width]);
+	var set_y = d3.scale.linear().range([height],0]);
+
+	var set_margin ={set_top:40 , set_left:40 , set_right:40 , set_botton:40 };
+	var set_height = 600 - set_margin.set_top - set_margin.set_botton ; 
+	var set_width  = 1000 - set_margin.set_right - set_margin.set_left ; 
+
+	  var set_svg = d3.select("body").append("set_svg")
+    	.attr("width",set_width + set_margin.set_left + set_margin.set_right)
+    	.attr("height",set_height + set_margin.set_botton + set_margin.set_top)
+      .append("svg")
+      	.attr("transform", "translate(" + set_margin.set_left + "," + set_margin.set_top + ")");
+	
+
+      /*  
+      d3.tsv('results.tsv',function(error,data){
+	data.forEach(function(x) {
+		d.SGPA = +d.SGPA;
+		d.Records = +d.Records;
+		});
+	  */
+
+	set_svg.append("svg")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + height + ")")
+				.call("set_xaxis")
+			.append("text")
+				.attr("class","label") 
+				.attr("x",set_width)
+				.attr("y",-10)
+				.style("text-anchor", "end")
+				.text("Students ----->");
+	d3.select("body").append("svg").text("The depicted graph is a scatter-plot for the students");
+
+	set_svg.append("svg")
+			 	.attr("class","y axis")
+			 	.call("set_yaxis")
+			.append("text")
+				.attr("class","label")
+				.attr("transform","rotate:(-90)")
+				.attr("y",10)
+				.attr("dy",".50em")
+				.style("text-anchor","end")
+				.text("SGPA ---------->")
+
+	set_svg.selecAll(".dot")
+			.enter.append("circle")
+			.attr("class","dot")
+			.attr("cx",function(d) {return x(d.Students);})
+			.attr("cy",function(d) {return y(d.SGPA);})
+			.attr("r",5)
+			.style("fill",function(d) {return color(d.ranges)}) ;
+
+	function validate(data) {           // yet to write the function
+
+	}
+
+	</script>
+
+	<script type="text/javascript">
+	d3.json("./path to file .json" , validate); // Pulling the data from an external JSON
+		</script>
+</body>
+</html>
